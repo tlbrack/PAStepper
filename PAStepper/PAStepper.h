@@ -7,9 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+@protocol PAStepperDelegate <NSObject>
+
+@optional
+
+- (void)didFinishChangingPAStepper:(id)stepper toValue:(double)value;
+
+@end
 
 @interface PAStepper : UIControl
 
+@property (assign, nonatomic) id<PAStepperDelegate> delegate;
 @property (assign, nonatomic) double value;
 @property (assign, nonatomic) double minimumValue;
 @property (assign, nonatomic) double maximumValue;
@@ -18,7 +28,7 @@
 @property (assign, nonatomic) BOOL continuous;
 @property (assign, nonatomic) BOOL autorepeat;
 @property (assign, nonatomic) double autorepeatInterval;
-
+@property (strong, nonatomic) NSString *unitSuffix;
 @property (strong, nonatomic) UIColor *tintColor;
 @property (strong, nonatomic) UIColor *textColor;
 

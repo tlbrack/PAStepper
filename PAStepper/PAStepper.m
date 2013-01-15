@@ -33,7 +33,7 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
-	if (self = [super initWithFrame:CGRectMake(frame.origin.x, frame.origin.y, 116.0, 29.0)]) {
+	if (self = [super initWithFrame:CGRectMake(frame.origin.x, frame.origin.y, 103.0, 28.0)]) {
 		[self setInitialValues];
 	}
 	
@@ -43,11 +43,11 @@
 - (void)setInitialValues
 {
 	_tintColor = [UIColor whiteColor];
-	_textColor = [UIColor blackColor];
-	_value = 0;
+	_textColor = [UIColor darkGrayColor];
+	_value = 1;
 	_continuous = YES;
-	_minimumValue = 0;
-	_maximumValue = 100;
+	_minimumValue = 1;
+	_maximumValue = 999;
 	_stepValue = 1;
 	_wraps = NO;
 	_autorepeat = YES;
@@ -55,10 +55,11 @@
 	label.textColor = _textColor;
 	
 	// init left button
-	decrementButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0, 0.0, 25.0, 29.0)];
-	[decrementButton setBackgroundImage:[UIImage imageNamed:@"minus_bckg"] forState:UIControlStateNormal];
+	decrementButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0, 0.0, 28.0, 28.0)];
+    UIImage *minusBackground = [UIImage imageNamed:@"ZMLibraryResources.bundle/stepperminus"];
+	[decrementButton setBackgroundImage:minusBackground forState:UIControlStateNormal];
 	[decrementButton setTintColor:_tintColor];
-	[decrementButton setTitle:@"-" forState:UIControlStateNormal];
+	//[decrementButton setTitle:@"-" forState:UIControlStateNormal];
 	[decrementButton setAutoresizingMask:UIViewAutoresizingNone];
     [decrementButton addTarget:self action:@selector(didPressButton:) forControlEvents:UIControlEventTouchUpInside];
     [decrementButton addTarget:self action:@selector(didBeginLongTap:) forControlEvents:UIControlEventTouchDown | UIControlEventTouchDragEnter];
@@ -66,24 +67,31 @@
 	[self addSubview:decrementButton];
 	
 	// background image
-	backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(25.0, 0.0, 66.0, 29.0)];
-	normalStateImage = [UIImage imageNamed:@"stepper_white_bckg"];
-	[backgroundImageView setImage:normalStateImage];
-	[self addSubview:backgroundImageView];
+//	backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(28.0, 0.0, 47.0, 28.0)];
+//	normalStateImage = [UIImage imageNamed:@"ZMLibraryResources.bundle/stepperbkg"];
+//	[backgroundImageView setImage:normalStateImage];
+//	[self addSubview:backgroundImageView];
 	
 	// label
-	label = [[UILabel alloc] initWithFrame:CGRectMake(2.0, 2.0, 62.0, 25.0)];
-	[label setTextAlignment:UITextAlignmentCenter];
-	[label setFont:[UIFont boldSystemFontOfSize:17.0]];
+//	label = [[UILabel alloc] initWithFrame:CGRectMake(2.0, 2.0, 43.0, 28.0)];
+    label = [[UILabel alloc] initWithFrame:CGRectMake(30.0, 0.0, 43.0, 28.0)];
+    [label setBackgroundColor:[UIColor clearColor]];
+	[label setTextAlignment:NSTextAlignmentCenter];
+	[label setFont:[UIFont boldSystemFontOfSize:15.0]];
 	[label setTextColor:_textColor];
+    [label setAdjustsFontSizeToFitWidth:YES];
+    [label setLineBreakMode:NSLineBreakByClipping];
+    [label setNumberOfLines:1];
 	[self setLabelText];
-	[backgroundImageView addSubview:label];
+	//[backgroundImageView addSubview:label];
+    [self addSubview:label];
 	
 	// init right button
-	incrementButton = [[UIButton alloc] initWithFrame:CGRectMake(91.0, 0.0, 25.0, 29.0)];
-	[incrementButton setBackgroundImage:[UIImage imageNamed:@"plus_bckg"] forState:UIControlStateNormal];
+	incrementButton = [[UIButton alloc] initWithFrame:CGRectMake(75.0, 0.0, 28.0, 28.0)];
+    UIImage *plusBackground = [UIImage imageNamed:@"ZMLibraryResources.bundle/stepperplus"];
+	[incrementButton setBackgroundImage:plusBackground forState:UIControlStateNormal];
 	[incrementButton setTintColor:_tintColor];
-	[incrementButton setTitle:@"+" forState:UIControlStateNormal];
+	//[incrementButton setTitle:@"+" forState:UIControlStateNormal];
     [incrementButton addTarget:self action:@selector(didPressButton:) forControlEvents:UIControlEventTouchUpInside];
     [incrementButton addTarget:self action:@selector(didBeginLongTap:) forControlEvents:UIControlEventTouchDown | UIControlEventTouchDragEnter];
     [incrementButton addTarget:self action:@selector(didEndLongTap) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel | UIControlEventTouchDragExit];
@@ -93,7 +101,7 @@
 - (void)setFrame:(CGRect)frame
 {
 	// don't allow to change frame
-	[super setFrame:CGRectMake(frame.origin.x, frame.origin.y, 116.0, 29.0)];
+	[super setFrame:CGRectMake(frame.origin.x, frame.origin.y, 103.0, 28.0)];
 }
 
 - (void)setLabelText
@@ -101,9 +109,19 @@
 	NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
 	[formatter setFormatterBehavior:NSNumberFormatterBehaviorDefault];
 	[formatter setNumberStyle:NSNumberFormatterBehaviorDefault];
-	[label setText:[formatter stringFromNumber:[NSNumber numberWithDouble:_value]]];
+    
+    NSString *text = [formatter stringFromNumber:[NSNumber numberWithDouble:_value]];
+    
+    if (self.unitSuffix != nil)
+        text = [text stringByAppendingString:self.unitSuffix];
+    
+	[label setText:text];
 }
 
+- (void)setUnitSuffix:(NSString *)unitSuffix {
+    _unitSuffix = unitSuffix;
+    [self setLabelText];
+}
 
 #pragma mark - Set Values
 - (void)setMinimumValue:(double)minValue
@@ -296,6 +314,9 @@
 
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];
 	changingValue = nil;
+    
+    // inform delegate
+    [self.delegate didFinishChangingPAStepper:self toValue:self.value];
 }
 
 - (void)longTapLoop
@@ -303,6 +324,7 @@
 	if (_autorepeat) {
 		[self performSelector:@selector(longTapLoop) withObject:nil afterDelay:_autorepeatInterval];
 		[self performSelectorOnMainThread:@selector(changeValue:) withObject:changingValue waitUntilDone:YES];
+        NSLog(@"longtaploop");
 	}
 }
 
@@ -340,6 +362,7 @@
 
 
 #pragma mark - Other methods
+
 - (void)changeValue:(NSNumber *)change
 {
 	double toChange = [change doubleValue];
